@@ -61,18 +61,15 @@ class Game extends JPanel {
      * It changes the direction of a snake based on user's input
      */
     private void changeDirection(KeyEvent e) {
+    	int keyCode = e.getKeyCode();
+    	
     	//change of direction to the opposite of current one is not allowed
-    	if((e.getKeyCode() == down && controlDirection != up)
-    			|| (e.getKeyCode() == right && controlDirection != left)
-    			|| (e.getKeyCode() == up && controlDirection != down)
-    			|| (e.getKeyCode() == left && controlDirection != right)) {
+    	if ((keyCode == down && controlDirection != up) || (keyCode == right && controlDirection != left)
+    			|| (keyCode == up && controlDirection != down) || (keyCode == left && controlDirection != right)) {
     		
     		//runs the game if it's not already running
-    		if(ran == false) {
-        		runGame();
-        	}
-    		
-    		direction = e.getKeyCode();
+    		if (ran == false) runGame();
+    		direction = keyCode;
     	}
     }
     
@@ -83,7 +80,7 @@ class Game extends JPanel {
 		ran = true;
 		snakeParts = new ArrayList<>();
     	snakeParts.add(new SnakePart(245, 245, size));
-    	for(int i = 0; i <= 3; i++) {
+    	for (int i = 0; i <= 3; i++) {
     		snakeParts.add(new SnakePart(-10, -10, size));
     	}
 		snakeFood = new SnakeFood(size, snakeParts);
@@ -120,6 +117,24 @@ class Game extends JPanel {
     }
     
     /**
+     * Overridden method that paints whole GUI
+     */
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        
+        //before start of the game paint a label then paint a snake and a food
+        if (ran) {
+        	snakeParts.forEach(s -> s.paintPart(g));
+	        snakeFood.paintFood(g);
+        } else {
+        	g.setFont(new Font(g.getFont().toString(), Font.BOLD, 18));
+        	g.setColor(Color.GREEN);
+        	g.drawString("Press an arrow key to start the game", 90, 240);
+        }
+    }
+    
+    /**
      * This action is fired in regular intervals by the timer
      * It keeps the snake moving and checks whether it crashed or ate a food
      */
@@ -144,8 +159,9 @@ class Game extends JPanel {
 					stopGame();
 					return;
 				} else {
-    				actualPart.setX(snakeParts.get(i - 1).getX());
-    				actualPart.setY(snakeParts.get(i - 1).getY());
+					SnakePart previsouPart = snakeParts.get(i - 1);
+    				actualPart.setX(previsouPart.getX());
+    				actualPart.setY(previsouPart.getY());
 				}
 			}
 			
@@ -170,7 +186,6 @@ class Game extends JPanel {
 				snakeFood.setRandomPosition(snakeParts);
 				foodX = snakeFood.getX();
 				foodY = snakeFood.getY();
-				System.out.println("Score: " + (snakeParts.size() - 5));
 				
 				//speed up the snake when it reaches a specified length
 				if (lastIndex == 28 || lastIndex == 53 || lastIndex == 103 || lastIndex == 203) {
@@ -181,25 +196,5 @@ class Game extends JPanel {
 			repaint();
         }            
     };
-    
-    /**
-     * Overridden method that paints whole GUI
-     */
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        
-        //before start of the game paint a label then paint a snake and a food
-        if (ran) {
-	        for (SnakePart snake : snakeParts) {
-	        	snake.paintPart(g);
-	        }
-	        snakeFood.paintFood(g);
-        } else {
-        	g.setFont(new Font(g.getFont().toString(), Font.BOLD, 18));
-        	g.setColor(Color.GREEN);
-        	g.drawString("Press an arrow key to start the game", 90, 240);
-        }
-    }
     
 }
